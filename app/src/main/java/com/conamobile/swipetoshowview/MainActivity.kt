@@ -18,28 +18,32 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
+
         setupUI()
     }
 
     private fun setupUI() {
         val cardList = ArrayList<Card>()
-        for (i in 0..10)
-            cardList.add(Card("Something$i"))
-
+        for (i in 0..12) {
+            cardList.add(Card("title"))
+        }
         adapter.submitList(cardList)
-        binding.cardRv.adapter = adapter
+        binding.recyclerView.adapter = adapter
         adapter.onDeleteClick = {
             Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show()
         }
+
         setItemTouchHelper()
     }
 
     private fun setItemTouchHelper() {
-        ItemTouchHelper(object : ItemTouchHelper.Callback() {
 
-            private val limitScrollX = dpToPx(100f, this@MainActivity)
+        ItemTouchHelper(object : ItemTouchHelper.Callback() {
+            private val limitScrollX = dpToPx(
+                100f,
+                this@MainActivity
+            ) // todo, the limit of swipe, same as the delete button in item, 100dp
             private var currentScrollX = 0
             private var currentScrollWhenInActive = 0
             private var initWhenInActive = 0f
@@ -50,8 +54,7 @@ class MainActivity : AppCompatActivity() {
                 viewHolder: RecyclerView.ViewHolder
             ): Int {
                 val dragFlags = 0
-                val swipeFlags = ItemTouchHelper.LEFT
-//                or ItemTouchHelper.RIGHT
+                val swipeFlags = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
                 return makeMovementFlags(dragFlags, swipeFlags)
             }
 
@@ -65,6 +68,15 @@ class MainActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 
+            }
+
+
+            override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+                return Integer.MAX_VALUE.toFloat()
+            }
+
+            override fun getSwipeEscapeVelocity(defaultValue: Float): Float {
+                return Integer.MAX_VALUE.toFloat()
             }
 
             override fun onChildDraw(
@@ -91,14 +103,16 @@ class MainActivity : AppCompatActivity() {
 
                         viewHolder.itemView.scrollTo(scrollOffset, 0)
                     } else {
+                        //slide with auto anim
                         if (firstInActive) {
                             firstInActive = false
                             currentScrollWhenInActive = viewHolder.itemView.scrollX
                             initWhenInActive = dX
                         }
+
                         if (viewHolder.itemView.scrollX < limitScrollX) {
                             viewHolder.itemView.scrollTo(
-                                (currentScrollWhenInActive + dX / initWhenInActive).toInt(),
+                                (currentScrollWhenInActive * dX / initWhenInActive).toInt(),
                                 0
                             )
                         }
@@ -117,8 +131,9 @@ class MainActivity : AppCompatActivity() {
                     viewHolder.itemView.scrollTo(0, 0)
                 }
             }
+
         }).apply {
-            attachToRecyclerView(binding.cardRv)
+            attachToRecyclerView(binding.recyclerView)
         }
     }
 
