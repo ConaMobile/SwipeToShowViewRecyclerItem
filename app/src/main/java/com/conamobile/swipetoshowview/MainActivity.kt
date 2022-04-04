@@ -50,7 +50,8 @@ class MainActivity : AppCompatActivity() {
                 viewHolder: RecyclerView.ViewHolder
             ): Int {
                 val dragFlags = 0
-                val swipeFlags = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+                val swipeFlags = ItemTouchHelper.LEFT
+//                or ItemTouchHelper.RIGHT
                 return makeMovementFlags(dragFlags, swipeFlags)
             }
 
